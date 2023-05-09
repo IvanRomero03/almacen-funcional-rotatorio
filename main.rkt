@@ -2,11 +2,11 @@
 (require csv-reading)
 (require racket/dict)
 (require csv-writing)
-
+; Read CSV
 (define (read-csv file)
     (csv->list (make-csv-reader (open-input-file file)))
 )  
-
+; define the data to be used
 (define data (read-csv "data.csv"))
 (display 'data: )
 (display data)
@@ -20,13 +20,15 @@
 (define rows (cadar data))
 (newline)
 
+; Convert list of lists to list of strings
 (define (cell-to-dict cell)
     (map (lambda (x) (string-split x ".")) (string-split cell ";")))
     
-
+; Convert the data to the format of each cells
 (define (rows-to-cells rows)
     (map (lambda (row) (map cell-to-dict row)) rows))
 
+; Create a hash with the data
 (define (create-dict data-input [dict (make-hash)] [n 1])
     (define (create-dict-helper data-input-fun dict n)
         (if (null? data-input-fun)
@@ -54,6 +56,7 @@
             (cons (car lista) (get-new-removed-list name quantity (cdr lista)))))
     )
 )
+; Remove product -> name quantity
 (define (remove-product name quantity state-dict)
     (begin
         (newline)
@@ -96,6 +99,7 @@
     )
 )
 
+; Add product -> name quantity
 (define (add-product name quantity state-dict)
     (begin
         (newline)
@@ -133,7 +137,7 @@
 ;     '((dict-set (car state-dict) (cdar state-dict) (get-new-added-list name quantity (dict-ref (car state-dict) (cdar state-dict)))) (cdr state-dict))
 ; )
 
-;Move state
+;Move state -> direction
 (define (move-direction dir state-dict)
     (cond 
         ((equal? dir 'up)
@@ -167,8 +171,9 @@
 (define simplyfy-list (lambda (list) (apply append list)))
 (define dict (create-dict (simplyfy-list (rows-to-cells (cdr data))) (hash) 1))
 (define state-dict-objct (list dict 1))
-(define instuctions-query '((show) (move down) (show) (remove "JetsonNano" 2) (show) (move right) (show) (move up) (show) (add "Serrucho" 5) (show)))
+(define instuctions-query '((show) (move down) (show) (remove "JetsonNano" 9) (show) (move right) (show) (move up) (show) (add "Serrucho" 5) (show)))
 
+; Execute query of instructions
 (define (execute-query-helper state-dict query)
     (cond
         ((equal? (car query) 'show)
@@ -192,6 +197,7 @@
         (else (raise "invalid query")))
 )
 
+; Execute query of instructions
 (define (execute-query state-dict query)
     (begin
     (newline)
@@ -210,6 +216,7 @@
         ))
 )
 
+; Convert list of lists to list of strings
 (define (to-full-string-list lista)
     (if (null? lista)
         '()
@@ -222,7 +229,7 @@
 
 (define list-to-string (lambda (lista) (string-join (to-full-string-list lista) ".")))
 
-
+; Convert each cell to format to save
 (define (to-string lista)
     (if (null? lista)
         ""
@@ -232,6 +239,7 @@
     )
 )
 
+; convert each cell to format to save
 (define (to-list graph n)
     (if (equal? (modulo n (string->number cols)) 0)
         (string-append (to-string (dict-ref graph n)) "\n")
@@ -246,12 +254,14 @@
 (newline)
 (to-string (dict-ref (car state-dict-objct) 1))
 (newline)
+; convert each row to list of strings
 (define (to-row graph n)
     (if (equal? (modulo n (string->number cols)) 0)
         (list (to-string (dict-ref graph n)))
         (cons (to-string (dict-ref graph n)) (to-row graph (+ n 1))))
 )
 
+; convert each row to list of cols
 (define (to-matrix graph n)
     ; from 1 to 1 + cols... to row*(cols - 1)
     (if (> n (+ 1 (* (string->number rows) (- (string->number cols) 1))))
@@ -260,13 +270,13 @@
     )
 )
 
+; write the csv from matrix
 ; de https://stackoverflow.com/questions/61023450/scheme-how-to-write-list-of-lists-into-csv-file
 (define (write-to-a-file lst path)
   (call-with-output-file path
     (lambda (output-port)
       (display-table lst output-port))
     #:exists 'replace))
-
 
 (to-matrix (car state-dict-objct) 1)
 
