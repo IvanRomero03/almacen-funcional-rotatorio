@@ -1,0 +1,27 @@
+(require '[clojure.set :as set])
+; 1.- Funcion que obtenga el último dato de una lista plana.
+
+(defn utlimo [lista]
+  (last lista))
+
+; 2.- Función que reciba 2 listas planas y genere una lista que contenga la intersección de ambas, es decir, a los datos que son comunes a ambas listas.
+(defn interseccion [lista1 lista2]
+  (set/intersection (set lista1) (set lista2)))
+
+; 3.- Función que reciba una lista imbricada de números enteros y obtenga la cantidad de datos pares que contiene.
+(defn pares [lista]
+  (if (empty? lista)
+    0
+    (if (even? (first lista))
+      (+ 1 (pares (rest lista)))
+      (pares (rest lista)))))
+
+; 4.- Función que reciba una matriz de datos y sin utilizar recursividad directa, obtenga la sumatoria de todos los datos positivos de la matriz.
+(defn sumatoria [matriz]
+  (apply + (map #(apply + %) (filter #(> (first %) 0) matriz))))
+
+; 5.- Función que reciba a una función aritmética binaria y un valor, y genere una función que, al aplicarse sobre una lista, le aplique sobre cada dato la función aritmética con el valor, generando una lista de resultados.
+(defn aply [f lista]
+  (map #(f %) lista))
+
+(println (aply #(+ % 2) [1 2 3 4 5 6 7 8 9 10]))
