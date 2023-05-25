@@ -1,0 +1,3 @@
+(defn lista-rand [n, max] (take n (repeatedly #(rand-int max))))
+
+(println (lista-rand 10 101))

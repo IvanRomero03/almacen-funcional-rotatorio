@@ -1,0 +1,42 @@
+(ns main
+  (:require [clojure.string :as str]
+            [clojure.java.io :as io]
+            [clojure.data.csv :as csv]))
+
+(defn read-csv [filename]
+  (with-open [reader (io/reader filename)]
+    (doall (csv/read-csv reader))))
+
+(def data (read-csv "data.csv"))
+(def cols (first (first data)))
+(def rows (first (rest (first data))))
+
+(defn cell-to-items [cell]
+  (str/split cell #";"))
+
+(defn item-to-map [lista]
+  (zipmap '("Nombre" "Cantidad" "Precio") lista))
+
+(defn item-string-to-list [item]
+  (str/split item #"."))
+
+(defn string-item-to-list [item]
+  (map item-string-to-list item))
+
+(defn string-item-to-map [item]
+  (map item-to-map (string-item-to-list item)))
+
+(defn row-of-maps [row]
+  (map string-item-to-map row))
+
+(defn matrix-of-maps [matrix]
+  (map row-of-maps matrix))
+
+(defn print-matrix [matrix]
+  (doseq [row matrix]
+    (println row)))
+
+(println (matrix-of-maps data))
+
+
+(println (read-csv "data.csv"))
