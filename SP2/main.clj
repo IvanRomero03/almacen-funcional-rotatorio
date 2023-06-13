@@ -323,14 +323,15 @@
           valor-total (valor-total-almacen (get final-state 'almacen))
           inventario-total (inventario-almacen (get final-state 'almacen))
           inventario-faltantes (items-faltantes-almacen (get final-state 'almacen))
-          DEBUG (do 
-                (println "Valor total: ")
-                (println valor-total)
-                (println "Inventario total: ")
-                (println inventario-total)
-                (println "Inventario faltantes: ")
-                (println inventario-faltantes)
-            1)]
+        ;;   DEBUG (do 
+        ;;         (println "Valor total: ")
+        ;;         (println valor-total)
+        ;;         (println "Inventario total: ")
+        ;;         (println inventario-total)
+        ;;         (println "Inventario faltantes: ")
+        ;;         (println inventario-faltantes)
+        ;;     1)
+            ]
             ;productos con stock menor a 5
             ; iterar por cada celda y por cada item en la celda
             ; iterar por cada celda -> range de 0 a (cols * rows) convirtiendo a coordenadas
@@ -340,7 +341,48 @@
         ;; (write-csv (almacen-list-to-csv
         ;;     (write-almacen-to-list (get final-state 'almacen) rows cols)) output-filename)))
         ;Aqui hacer un do pa sacar lo q se ocupa
-        (write-csv (write-almacen-to-list (get final-state 'almacen) rows cols) output-filename)))
+        (do 
+            (write-csv (write-almacen-to-list (get final-state 'almacen) rows cols) output-filename)
+            {'ValorTotal valor-total 'InventarioTotal inventario-total 'InventarioFaltantes inventario-faltantes 'AlmacenName filename}
+            )))
 ;(println (first (rest (rest (first (read-csv "data.csv"))))))
-(exec-process "data.csv" "output3.csv")
+;(exec-process "data.csv" "output3.csv") jala
+;(exec-process "almacenes/0.csv" "outputs/0.csv") jala
+;(exec-process "almacenes/1.csv" "outputs/1.csv") jala
+;(exec-process "almacenes/2.csv" "outputs/2.csv") jala
+;(exec-process "almacenes/3.csv" "outputs/3.csv") jala
+;(exec-process "almacenes/4.csv" "outputs/4.csv") jala
+;(exec-process "almacenes/5.csv" "outputs/5.csv") jala
+(def lista-input-output (list (list "data.csv" "output.csv")(list "almacenes/0.csv" "outputs/0.csv") (list "almacenes/1.csv" "outputs/1.csv") (list "almacenes/2.csv" "outputs/2.csv") (list "almacenes/3.csv" "outputs/3.csv") (list "almacenes/4.csv" "outputs/4.csv") (list "almacenes/5.csv" "outputs/5.csv")))
+(println lista-input-output)
+(def outputs (map #(exec-process (first %) (second %)) lista-input-output))
+(defn valor-total-inventario [outputs]
+    (let [valor-total (map #(get % 'ValorTotal) outputs)]
+        (reduce + valor-total)))
+
+(defn get-items-faltantes-with-almacen [outputs]
+    (let [almacenes (map #(get % 'AlmacenName) outputs)
+          items-faltantes (map #(get % 'InventarioFaltantes) outputs)]
+        (map #(zipmap almacenes %) items-faltantes)))
+
+(defn get-max-inventario [outputs]
+    (let [inventarios (map #(get % 'InventarioTotal) outputs)]
+        (apply max inventarios)))
+
+(defn get-inventario-max-almacen [outputs max-valor-total]
+    (let [almacen (first (filter #(= (get % 'ValorTotal) max-valor-total) outputs))]
+        (get almacen 'AlmacenName)))
+
+(def inventario-total (valor-total-inventario outputs))
+(def items-faltantes (get-items-faltantes-with-almacen outputs))
+(def max-inventario (get-max-inventario outputs))
+(println "Valor total: ")
+(println inventario-total)
+(println "Items faltantes: ")
+(println items-faltantes)
+(println "Max inventario: ")
+(println max-inventario)
+(println (get-inventario-max-almacen outputs max-inventario))
+
+
 ;(println (write-almacen-to-list (get state-map 'almacen) rows cols))
