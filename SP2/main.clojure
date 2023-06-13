@@ -10,6 +10,11 @@
 (def data (read-csv "data.csv"))
 (def cols (first (first data)))
 (def rows (first (rest (first data))))
+(print rows)
+(print " ")
+(print cols)
+(print " ")
+(println (first(rest data)))
 
 (defn cell-to-items [cell]
   (str/split cell #";"))
@@ -39,4 +44,4 @@
 (println (matrix-of-maps data))
 
 
-(println (read-csv "data.csv"))
+;(println (read-csv "data.csv"))
